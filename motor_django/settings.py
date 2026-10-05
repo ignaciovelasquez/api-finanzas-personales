@@ -73,13 +73,17 @@ WSGI_APPLICATION = 'motor_django.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
+# Conexion con la base de datos MySQL
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',   # Motor de MySQL
+        'NAME': 'finanzas_db',                      # Nombre del esquema
+        'USER': 'finanzas_user',                    # Usuario de la base
+        'PASSWORD': 'Futbol123',         # Contrasena de acceso
+        'HOST': 'localhost',                     # Servidor (local)
+        'PORT': '3306',                          # Puerto de MySQL
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
