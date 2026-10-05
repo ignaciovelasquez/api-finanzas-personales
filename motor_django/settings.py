@@ -9,23 +9,27 @@ https://docs.djangoproject.com/en/6.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
-
+import os
 from pathlib import Path
+from dotenv import load_dotenv
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+# ---> ESTA LÍNEA ES LA QUE FALTA PARA CARGAR EL ARCHIVO .ENV <---
+load_dotenv(BASE_DIR / '.env')
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-&-cc!f!8etlq__ekml&+6od2iv4e2)ff-%=4na0bg%i+r5xp)9'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-&-cc!f!8etlq__ekml&+6od2iv4e2)ff-%=4na0bg%i+r5xp)9')
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+allowed_hosts_str = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost')
+ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_str.split(',') if host.strip()]
 
 
 # Application definition
@@ -37,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'api',
 ]
 
@@ -76,12 +81,12 @@ WSGI_APPLICATION = 'motor_django.wsgi.application'
 # Conexion con la base de datos MySQL
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',   # Motor de MySQL
-        'NAME': 'finanzas_db',                      # Nombre del esquema
-        'USER': 'finanzas_user',                    # Usuario de la base
-        'PASSWORD': 'Futbol123',         # Contrasena de acceso
-        'HOST': 'localhost',                     # Servidor (local)
-        'PORT': '3306',                          # Puerto de MySQL
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.mysql'),
+        'NAME': os.getenv('DB_NAME', 'finanzas_db'),
+        'USER': os.getenv('DB_USER', 'finanzas_user'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '3306'),
     }
 }
 
