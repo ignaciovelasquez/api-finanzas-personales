@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Productos - FinanceCore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white">
+
+    <!-- Barra de Navegación Privada -->
+    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-400 flex items-center justify-center text-white shadow-lg shadow-indigo-900/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                </div>
+                <span class="font-bold tracking-tight text-white text-base">Finance<span class="text-indigo-400">Core</span></span>
+                <span class="text-xs font-mono uppercase bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded border border-indigo-500/20 ml-2">Zona Privada (CBV)</span>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <a href="{% url 'dashboard' %}" class="text-xs text-slate-300 hover:text-white transition-colors inline-flex items-center gap-1">
+                    &larr; Volver al Dashboard
+                </a>
+                <a href="/api/" class="text-xs text-slate-300 hover:text-white transition-colors">
+                    API REST
+                </a>
+                <form method="post" action="{% url 'logout' %}" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="text-xs bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 px-3 py-1.5 rounded-lg transition-colors font-semibold">
+                        Cerrar Sesión
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="max-w-6xl mx-auto px-6 py-10 flex-1 w-full">
+        <!-- Encabezado de la Sección -->
+        <div class="mb-8">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-2">
+                Vista Protegida &bull; LoginRequiredMixin (ListView)
+            </div>
+            <h1 class="text-3xl font-extrabold text-white tracking-tight">Catálogo General de Productos</h1>
+            <p class="text-sm text-slate-400 mt-1">Gestión completa del modelo Producto protegida mediante Class-Based View.</p>
+        </div>
+
+        <!-- Tarjetas de Productos -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for prod in productos %}
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl hover:border-slate-700 transition-all flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-mono uppercase bg-slate-800 text-slate-300 px-2.5 py-1 rounded-md border border-slate-700">
+                            {{ prod.categoria.nombre }}
+                        </span>
+                        {% if prod.disponible %}
+                        <span class="text-xs text-emerald-400 font-semibold bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">Disponible</span>
+                        {% else %}
+                        <span class="text-xs text-slate-500 font-semibold bg-slate-800 px-2 py-0.5 rounded-full">Inactivo</span>
+                        {% endif %}
+                    </div>
+                    <h3 class="text-lg font-bold text-white tracking-tight">{{ prod.nombre }}</h3>
+                    <p class="text-xs text-slate-400 mt-2 line-clamp-3 leading-relaxed">
+                        {{ prod.descripcion|default:"Sin descripción detallada registrada." }}
+                    </p>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between">
+                    <div>
+                        <span class="block text-[10px] uppercase font-mono text-slate-500">Precio Estimado</span>
+                        <span class="text-xl font-extrabold text-emerald-400 font-mono">${{ prod.precio_estimado }}</span>
+                    </div>
+                    <span class="text-[11px] text-slate-500 font-mono">
+                        {{ prod.fecha_publicacion|date:"d/m/Y" }}
+                    </span>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-3 text-center py-16 bg-slate-900/50 border border-slate-800 rounded-2xl">
+                <p class="text-slate-400 text-sm">No existen productos registrados en la base de datos.</p>
+                <a href="/admin/api/producto/add/" class="inline-block mt-4 text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-4 py-2 rounded-lg transition-colors">
+                    Crear Producto en Django Admin
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-900 bg-slate-950 py-5 text-center text-xs text-slate-600">
+        FinanceCore &bull; Sistema de Autenticación y Control de Acceso Django
+    </footer>
+
+</body>
+</html>

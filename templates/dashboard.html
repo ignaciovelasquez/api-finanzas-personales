@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Privado - FinanceCore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white">
+
+    <!-- Barra de Navegación Privada -->
+    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-white shadow-lg shadow-emerald-900/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <span class="font-bold tracking-tight text-white text-base">Finance<span class="text-emerald-400">Core</span></span>
+                <span class="text-xs font-mono uppercase bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20 ml-2">Zona Privada (FBV)</span>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <span class="text-xs text-slate-400 hidden sm:inline">Usuario: <strong class="text-emerald-400 font-mono">{{ usuario.username }}</strong></span>
+                <a href="{% url 'gestion_productos' %}" class="text-xs text-slate-300 hover:text-white transition-colors">
+                    Gestión (CBV)
+                </a>
+                <a href="/api/" class="text-xs text-slate-300 hover:text-white transition-colors">
+                    API REST
+                </a>
+                <form method="post" action="{% url 'logout' %}" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="text-xs bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 px-3 py-1.5 rounded-lg transition-colors font-semibold">
+                        Cerrar Sesión
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="max-w-6xl mx-auto px-6 py-10 flex-1 w-full">
+        <!-- Encabezado de la Sección -->
+        <div class="mb-8">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-2">
+                Vista Protegida &bull; @login_required
+            </div>
+            <h1 class="text-3xl font-extrabold text-white tracking-tight">Panel de Control Financiero</h1>
+            <p class="text-sm text-slate-400 mt-1">Métricas calculadas en tiempo real para usuarios autenticados.</p>
+        </div>
+
+        <!-- Tarjetas de Métricas -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl"></div>
+                <div class="flex items-center justify-between">
+                    <p class="text-xs uppercase font-mono tracking-wider text-slate-400">Total Productos Registrados</p>
+                    <span class="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg text-xs font-mono">Modelo Producto</span>
+                </div>
+                <p class="text-4xl font-extrabold text-emerald-400 mt-4">{{ total_productos }}</p>
+                <p class="text-xs text-slate-500 mt-2">Productos activos en la base de datos MySQL</p>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-teal-500/5 rounded-full blur-2xl"></div>
+                <div class="flex items-center justify-between">
+                    <p class="text-xs uppercase font-mono tracking-wider text-slate-400">Total Categorías Activas</p>
+                    <span class="p-2 bg-teal-500/10 text-teal-400 rounded-lg text-xs font-mono">Modelo Categoria</span>
+                </div>
+                <p class="text-4xl font-extrabold text-teal-400 mt-4">{{ total_categorias }}</p>
+                <p class="text-xs text-slate-500 mt-2">Categorías parametrizadas para clasificación</p>
+            </div>
+        </div>
+
+        <!-- Tabla de Productos Recientes -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-base font-bold text-white">Últimos Registros del Sistema</h2>
+                <a href="{% url 'gestion_productos' %}" class="text-xs text-emerald-400 hover:text-emerald-300 font-semibold transition-colors">
+                    Ver todos los productos &rarr;
+                </a>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-300">
+                    <thead class="text-slate-400 border-b border-slate-800 font-mono uppercase bg-slate-950/40">
+                        <tr>
+                            <th class="py-3 px-4">Producto</th>
+                            <th class="py-3 px-4">Categoría</th>
+                            <th class="py-3 px-4">Precio Estimado</th>
+                            <th class="py-3 px-4">Disponibilidad</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800">
+                        {% for prod in productos_recientes %}
+                        <tr class="hover:bg-slate-800/40 transition-colors">
+                            <td class="py-3.5 px-4 font-semibold text-white">{{ prod.nombre }}</td>
+                            <td class="py-3.5 px-4"><span class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">{{ prod.categoria.nombre }}</span></td>
+                            <td class="py-3.5 px-4 text-emerald-400 font-mono font-bold">${{ prod.precio_estimado }}</td>
+                            <td class="py-3.5 px-4">
+                                {% if prod.disponible %}
+                                <span class="inline-flex items-center gap-1.5 text-emerald-400">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                                    Disponible
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center gap-1.5 text-slate-500">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-slate-500"></span>
+                                    Inactivo
+                                </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="py-6 text-center text-slate-500">
+                                No hay productos registrados aún en la base de datos.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-900 bg-slate-950 py-5 text-center text-xs text-slate-600">
+        FinanceCore &bull; Sistema de Autenticación y Control de Acceso Django
+    </footer>
+
+</body>
+</html>
